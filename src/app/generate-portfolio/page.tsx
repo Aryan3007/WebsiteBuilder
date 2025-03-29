@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { generatePortfolio } from "@/actions/generate-text"
 
 // Animation variants
 const containerVariants = {
@@ -172,7 +173,7 @@ export default function ResumeExtractor() {
               for (let i = 1; i <= numPages; i++) {
                 const page = await pdf.getPage(i)
                 const textContent = await page.getTextContent()
-                const pageText = textContent.items.map((item: any) => item.str).join(" ")
+                const pageText = textContent.items.map((item: { str: string }) => item.str).join(" ")
                 extractedText += pageText + "\n\n"
               }
 
@@ -289,10 +290,14 @@ export default function ResumeExtractor() {
     document.body.removeChild(element)
   }
 
-  const handleGeneratePortfolio = () => {
-    // This would navigate to the portfolio generation page
-    console.log("Generating portfolio with resume data:", text)
-    alert("Portfolio generation started! This would navigate to the portfolio customization page.")
+  const handleGeneratePortfolio = async () => {
+    try {
+      const res = await generatePortfolio(text)
+      console.log("response", res);
+    } catch (error) {
+      console.log(error)
+    }
+
   }
 
   return (
@@ -308,7 +313,7 @@ export default function ResumeExtractor() {
 
       {!pdfJsLoaded && (
         <div className="mb-4 w-full">
-          <Alert variant="info" className="mb-4">
+          <Alert variant="default" className="mb-4">
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 rounded-full border-2 border-indigo-500/30 border-t-indigo-500 animate-spin" />
               <AlertTitle>Loading PDF processor...</AlertTitle>
@@ -449,7 +454,10 @@ export default function ResumeExtractor() {
                             Upload another file
                           </Button>
                           <Button
-                            onClick={() => document.querySelector('[data-value="extracted"]')?.click()}
+                            onClick={() => {
+                              const extractedTab = document.querySelector('[data-value="extracted"]') as HTMLElement | null;
+                              extractedTab?.click();
+                            }}
                             className="flex items-center gap-2"
                             variant="outline"
                           >
@@ -467,7 +475,7 @@ export default function ResumeExtractor() {
                       <p className="text-lg font-medium">Drag & drop your resume here</p>
                       <p className="mt-2 text-sm text-muted-foreground">or click the button below to browse files</p>
                       <p className="mt-1 text-xs text-muted-foreground">Supported formats: PDF, TXT</p>
-                      <Alert variant="warning" className="mt-4 max-w-md">
+                      <Alert variant="default" className="mt-4 max-w-md">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Important Note</AlertTitle>
                         <AlertDescription>
@@ -577,7 +585,10 @@ export default function ResumeExtractor() {
                         <p className="text-muted-foreground">Upload a resume to see extracted information here</p>
                         <Button
                           variant="link"
-                          onClick={() => document.querySelector('[data-value="upload"]')?.click()}
+                          onClick={() => {
+                            const uploadTab = document.querySelector('[data-value="upload"]') as HTMLElement | null;
+                            uploadTab?.click();
+                          }}
                           className="mt-2"
                         >
                           Go to upload
