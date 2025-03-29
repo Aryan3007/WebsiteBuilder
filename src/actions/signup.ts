@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import bcrypt from 'bcryptjs';
 
 
-export async function signUp(email : string, password: string){
+export async function signUp(email : string, password: string, name: string){
     const session = await getServerSession(authOptions);
     if (session?.user) {
         throw new Error('User is already signed in');
@@ -16,7 +16,8 @@ export async function signUp(email : string, password: string){
             email: email
         },
         select:{
-            password: true
+            password: true,
+            name: true
         }
     })
 
@@ -32,6 +33,7 @@ export async function signUp(email : string, password: string){
 
     const user = await prisma.user.create({
         data: {
+            name: name,
             email: email,
             password: hashedPassword,
         }

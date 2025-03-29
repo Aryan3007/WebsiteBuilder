@@ -13,7 +13,6 @@ export default async function Home() {
     )
   }
 
-  
   return (
     <div>
       <LogoutButton session={session}/>

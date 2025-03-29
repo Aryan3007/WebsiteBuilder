@@ -10,11 +10,16 @@ import { signUp } from '@/actions/signup';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +28,7 @@ const SignUp = () => {
 
   const handleSubmit = async () => {
     try {
-        const response  = await signUp( email, password);
+        const response  = await signUp( email, password, name);
         console.log("Response", response);
         if(response.status === 409){
             toast.error('User already exists');
@@ -40,6 +45,20 @@ const SignUp = () => {
   return (
     <div className="w-sm max-w-md mx-auto p-6 border border-gray-300 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-center mb-6">Sign Up</h2>
+
+      <div className="mb-4">
+        <Label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          Name
+        </Label>
+        <Input
+          type="text"
+          id="name"
+          value={name}
+          onChange={handleNameChange}
+          placeholder="Enter your name"
+          className="w-full p-3 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
 
       {/* Email Input */}
       <div className="mb-4">
