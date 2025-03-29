@@ -12,3 +12,22 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id              String   @id @default(cuid())
+  name            String?
+  email           String  @unique
+  portfolioLink   String?
+  password        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  sessions        Session[] @relation("UserSessions")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], name: "UserSessions")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
