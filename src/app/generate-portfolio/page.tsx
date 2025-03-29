@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { generatePortfolio } from "@/actions/generate-text"
+import { generatePortfolio } from "@/actions/generate-portfolio"
 
 // Animation variants
 const containerVariants = {
@@ -56,7 +56,8 @@ declare global {
 }
 
 export default function ResumeExtractor() {
-  const [text, setText] = useState("")
+  const [text, setText] = useState("");
+  const [generatedHTML, setGeneratedHTML] = useState(undefined);
   const [fileName, setFileName] = useState("")
   const [fileType, setFileType] = useState("")
   const [isUploading, setIsUploading] = useState(false)
@@ -294,6 +295,7 @@ export default function ResumeExtractor() {
     try {
       const res = await generatePortfolio(text)
       console.log("response", res);
+      setGeneratedHTML(res.portfolio)
     } catch (error) {
       console.log(error)
     }

@@ -22,7 +22,16 @@ model User {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   sessions        Session[] @relation("UserSessions")
+  htmlFiles       htmlFile[] @relation("UserHtmlFiles")
 }
+
+model htmlFile{
+  id        String @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], name: "UserHtmlFiles")
+  file      String?
+}
+
 
 model Session {
   id        String   @id @default(cuid())
