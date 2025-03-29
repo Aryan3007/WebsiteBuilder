@@ -3,17 +3,17 @@ import { HeroSection } from "@/components/hero-section";
 import { HowItWorks } from "@/components/how-it-works";
 import { CtaSection } from "@/components/cta-section"
 import { Navbar } from "@/components/navbar";
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
+// import { authOptions } from "@/lib/auth";
+// import { getServerSession } from "next-auth";
 import { Footer } from "@/components/footer";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions)
+  // const session = await getServerSession(authOptions)
 
-  if(!session){
-    redirect('/signin')
-  }
+  // if(!session){
+  //   redirect('/signin')
+  // }
 
   return (
     <div className="relative min-h-screen">
