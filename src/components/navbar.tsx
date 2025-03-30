@@ -7,11 +7,13 @@ import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import Image from "next/image"
 const navLinks = [
   { href: "#features", label: "Features" },
   { href: "#how-it-works", label: "How It Works" },
   { href: "#pricing", label: "Pricing" },
   { href: "#testimonials", label: "Testimonials" },
+  { href: "/communities", label: "Community" },
 ]
 
 export function Navbar() {
@@ -33,10 +35,10 @@ export function Navbar() {
               whileTap={{ scale: 0.95 }}
             >
               <div className="flex h-full w-full items-center justify-center rounded-full bg-background">
-                <span className="font-semibold text-lg">PB</span>
+                <Image src="/portfol copy.png" alt="navImage" width={200} height={200} />
               </div>
             </motion.div>
-            <span className="hidden font-bold sm:inline-block text-lg">Portfolio.AI</span>
+            <span className="hidden font-bold sm:inline-block text-lg">Portfol.io</span>
           </Link>
 
           <nav className="hidden md:flex md:gap-6">

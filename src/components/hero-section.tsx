@@ -156,14 +156,14 @@ export function HeroSection() {
               </HoverCardContent>
             </HoverCard>
 
-            <Link href="#how-it-works">
+            <Link href="/communities">
               <Button
                 size="lg"
                 variant="outline"
                 className="group w-full transition-transform hover:scale-105 sm:w-auto"
               >
                 <span className="flex items-center gap-2">
-                  See how it works
+                  Explore Communities
                   <motion.div
                     className="flex items-center justify-center rounded-full"
                     animate={{ rotate: [0, 360] }}
@@ -173,15 +173,6 @@ export function HeroSection() {
                       ease: "linear"
                     }}
                   >
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"
-                        className="opacity-20"
-                      />
-                      <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c2.76 0 5.26-1.12 7.07-2.93"
-                        className="opacity-75"
-                      />
-                    </svg>
                   </motion.div>
                 </span>
               </Button>
