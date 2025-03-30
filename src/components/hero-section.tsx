@@ -123,7 +123,7 @@ export function HeroSection() {
           >
             <HoverCard>
               <HoverCardTrigger asChild>
-                <Link href="/signup">
+                <Link href="/generate-portfolio">
                   <Button
                     size="lg"
                     className="relative overflow-hidden bg-gradient-to-r from-violet-500 to-indigo-600 text-white transition-transform hover:scale-105"
@@ -147,7 +147,7 @@ export function HeroSection() {
                   </Button>
                 </Link>
               </HoverCardTrigger>
-              <HoverCardContent className="w-80">
+              <HoverCardContent className="w-80  backdrop-blur-3xl">
                 <div className="flex justify-between space-y-1">
                   <p className="text-sm text-muted-foreground">
                     Start creating your AI-powered portfolio in minutes. No credit card required.

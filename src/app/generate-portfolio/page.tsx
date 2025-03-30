@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { useRouter } from "next/navigation"
 import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
 import {
@@ -18,10 +18,11 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { generatePortfolio } from "@/actions/generate-portfolio"
+import { toast } from "sonner"
 
 // Animation variants
 const containerVariants = {
@@ -57,17 +58,17 @@ declare global {
 
 export default function ResumeExtractor() {
   const [text, setText] = useState("");
-  const [generatedHTML, setGeneratedHTML] = useState(undefined);
   const [fileName, setFileName] = useState("")
   const [fileType, setFileType] = useState("")
   const [isUploading, setIsUploading] = useState(false)
   const [isExtracting, setIsExtracting] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pdfJsLoaded, setPdfJsLoaded] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
+const router  = useRouter()
   useEffect(() => {
     const loadPdfJs = async () => {
       try {
@@ -291,16 +292,25 @@ export default function ResumeExtractor() {
     document.body.removeChild(element)
   }
 
-  const handleGeneratePortfolio = async () => {
-    try {
-      const res = await generatePortfolio(text)
-      console.log("response", res);
-      setGeneratedHTML(res.portfolio)
-    } catch (error) {
-      console.log(error)
-    }
+const handleGeneratePortfolio = async () => {
+  try {
+    setLoading(true)
+    const res = await generatePortfolio(text);
+    console.log("response", res);
 
+    if(res.success) {
+      setLoading(false)
+      toast.success("Portfolio Generated Successfully")
+      localStorage.setItem("portfolioHTML", res.portfolio); // Store in localStorage
+      router.push("/customize"); // Navigate to portfolio page
+    }
+    else{
+      toast.error("failed to genrate")
+    }
+  } catch (error) {
+    console.log(error);
   }
+};
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-background">
@@ -387,10 +397,10 @@ export default function ResumeExtractor() {
           {/* Main content */}
           <motion.div variants={itemVariants} className="mx-auto mb-8 w-full max-w-5xl flex-1">
             <Tabs defaultValue="upload" className="w-full">
-              <TabsList className="mx-auto mb-8 grid w-full max-w-md grid-cols-2">
+              {/* <TabsList className="mx-auto mb-8 grid w-full max-w-md grid-cols-2">
                 <TabsTrigger value="upload">Upload Resume</TabsTrigger>
                 <TabsTrigger value="extracted">Extracted Info</TabsTrigger>
-              </TabsList>
+              </TabsList> */}
 
               <TabsContent value="upload" className="mt-0">
                 <div
@@ -445,10 +455,17 @@ export default function ResumeExtractor() {
                       <div className="mt-6 flex flex-col gap-4">
                         <Button
                           onClick={handleGeneratePortfolio}
-                          className="flex items-center gap-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white"
+                          className={`flex items-center gap-2 bg-gradient-to-r from-violet-500 to-indigo-600 text-white ${
+                          loading ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                          disabled={loading}
                         >
+                          {loading ? (
+                          <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                          ) : (
                           <Sparkles className="h-4 w-4" />
-                          Generate My Portfolio
+                          )}
+                          {loading ? "Generating..." : "Generate My Portfolio"}
                         </Button>
                         <div className="flex gap-4">
                           <Button variant="outline" onClick={triggerFileInput} className="flex items-center gap-2">
