@@ -19,6 +19,7 @@ import {
   ChevronRight,
   PaintBucket,
   Check,
+  CloudLightningIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -39,6 +40,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { toast } from "sonner"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 // Define theme colors
 interface ThemeColor {
@@ -214,6 +216,12 @@ export default function PortfolioCustomizer() {
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [currentTheme, setCurrentTheme] = useState<ThemeColor>(themeColors[0])
   const [themeMenuOpen, setThemeMenuOpen] = useState(false)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const [showPublishDialog, setShowPublishDialog] = useState(false)
+  const [publishSubdomain, setPublishSubdomain] = useState("")
+  const [isPublishing, setIsPublishing] = useState(false)
+  const [publishSuccess, setPublishSuccess] = useState(false)
+  const [publishedUrl, setPublishedUrl] = useState("")
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const contentEditableRef = useRef<boolean>(false)
@@ -680,230 +688,6 @@ export default function PortfolioCustomizer() {
     }
   }
 
-  // This function clones a child element in a container
-  const cloneChildElement = () => {
-    if (!selectedElement || !iframeRef.current?.contentWindow?.document) return
-
-    // Check if the selected element is a container
-    if (!isAddableContainer(selectedElement)) {
-      toast.error("Please select a container element like a grid or section first")
-      return
-    }
-
-    // Find a child element to clone
-    const children = selectedElement.children
-    if (children.length === 0) {
-      toast.error("The selected container has no children to clone")
-      return
-    }
-
-    // Clone the last child
-    const childToClone = children[children.length - 1] as HTMLElement
-    const clone = childToClone.cloneNode(true) as HTMLElement
-
-    // Reset any IDs to avoid duplicates
-    if (clone.id) {
-      clone.id = `${clone.id}-copy-${Date.now()}`
-    }
-
-    // Add the cloned element to the container
-    selectedElement.appendChild(clone)
-
-    // Update the HTML
-    updatePortfolioHTML()
-
-    // Show success message
-    toast.success("New item added successfully!")
-  }
-
-  // This function adds a new element from a template
-  const addNewElement = (templateType: string) => {
-    if (!selectedElement || !iframeRef.current?.contentWindow?.document) return
-
-    // Check if the selected element is a container
-    if (!isAddableContainer(selectedElement)) {
-      toast.error("Please select a container element like a grid or section first")
-      return
-    }
-
-    let template = ""
-
-    // Define templates for different types of content
-    switch (templateType) {
-      case "project":
-        template = `
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <img src="/placeholder.svg?height=200&width=400" alt="Project Image" class="w-full h-48 object-cover" />
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">New Project</h3>
-            <p class="text-gray-600 dark:text-gray-400 mb-4">Project description goes here. Click to edit this text.</p>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">Tag 1</span>
-              <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">Tag 2</span>
-            </div>
-            <a href="#" class="inline-flex items-center text-primary hover:underline">
-              View Project <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-            </a>
-          </div>
-        </div>
-      `
-        break
-      case "experience":
-        template = `
-        <div class="flex">
-          <div class="hidden md:block w-1/5 pr-8 text-right">
-            <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">2023 - Present</span>
-          </div>
-          <div class="relative w-full md:w-4/5 pl-8 border-l-2 border-primary">
-            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
-            <span class="inline-block md:hidden text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">2023 - Present</span>
-            <h4 class="text-xl font-semibold text-gray-900 dark:text-white">New Position</h4>
-            <p class="text-gray-600 dark:text-gray-400 mb-3">Company Name</p>
-            <p class="text-gray-700 dark:text-gray-300">Job description goes here. Click to edit this text.</p>
-          </div>
-        </div>
-      `
-        break
-      case "education":
-        template = `
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 transition-all hover:shadow-md">
-          <h4 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Degree Name</h4>
-          <p class="text-gray-600 dark:text-gray-400 mb-4">University Name | 2023</p>
-          <p class="text-gray-700 dark:text-gray-300">Description or achievements. Click to edit this text.</p>
-        </div>
-      `
-        break
-      case "skill":
-        template = `<span class="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">New Skill</span>`
-        break
-      default:
-        template = `<div class="p-4 border rounded-md">New content. Click to edit.</div>`
-    }
-
-    // Create a temporary container to hold our HTML
-    const tempContainer = iframeRef.current.contentWindow.document.createElement("div")
-    tempContainer.innerHTML = template.trim()
-
-    // Get the first child (our actual template)
-    const newElement = tempContainer.firstChild as HTMLElement
-
-    // Add the new element to the container
-    selectedElement.appendChild(newElement)
-
-    // Update the HTML
-    updatePortfolioHTML()
-
-    // Show success message
-    toast.success(`New ${templateType} added successfully!`)
-  }
-
-  // This function removes the selected element
-  const removeSelectedElement = () => {
-    if (!selectedElement || !iframeRef.current?.contentWindow?.document) return
-
-    // Don't allow removing body or critical elements
-    if (
-      selectedElement.tagName === "BODY" ||
-      selectedElement.tagName === "HTML" ||
-      selectedElement.tagName === "HEAD"
-    ) {
-      toast.error("This element cannot be removed")
-      return
-    }
-
-    // Ask for confirmation before removing
-    if (confirm("Are you sure you want to remove this element? This action cannot be undone.")) {
-      // Store the parent to reselect after removal
-      const parent = selectedElement.parentElement
-
-      // Remove the element
-      selectedElement.remove()
-
-      // Update the HTML
-      updatePortfolioHTML()
-
-      // Clear the selected element
-      setSelectedElement(null)
-      setSelectedElementPath([])
-
-      // Select the parent if available
-      if (parent) {
-        handleElementClick(parent)
-      }
-
-      // Show success message
-      toast.success("Element removed successfully")
-    }
-  }
-
-  // Update the applyThemeToUI function to use HSL values for better compatibility with shadcn/ui
-  const applyThemeToUI = (theme: ThemeColor) => {
-    // Convert hex colors to HSL for shadcn/ui compatibility
-    const hexToHSL = (hex: string) => {
-      // Remove the # if present
-      hex = hex.replace(/^#/, "")
-
-      // Parse the hex values
-      const r = Number.parseInt(hex.substring(0, 2), 16) / 255
-      const g = Number.parseInt(hex.substring(2, 4), 16) / 255
-      const b = Number.parseInt(hex.substring(4, 6), 16) / 255
-
-      // Find the min and max values to calculate saturation
-      const max = Math.max(r, g, b)
-      const min = Math.min(r, g, b)
-
-      // Calculate HSL values
-      let h = 0
-      let s = 0
-      let l = (max + min) / 2
-
-      if (max !== min) {
-        const d = max - min
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-
-        switch (max) {
-          case r:
-            h = (g - b) / d + (g < b ? 6 : 0)
-            break
-          case g:
-            h = (b - r) / d + 2
-            break
-          case b:
-            h = (r - g) / d + 4
-            break
-        }
-
-        h = h * 60
-      }
-
-      // Round values
-      h = Math.round(h)
-      s = Math.round(s * 100)
-      l = Math.round(l * 100)
-
-      return `${h} ${s}% ${l}%`
-    }
-
-    // Set the CSS variables using HSL values
-    document.documentElement.style.setProperty("--background", hexToHSL(theme.background))
-    document.documentElement.style.setProperty("--foreground", hexToHSL(theme.foreground))
-    document.documentElement.style.setProperty("--card", hexToHSL(theme.card))
-    document.documentElement.style.setProperty("--card-foreground", hexToHSL(theme.cardForeground))
-    document.documentElement.style.setProperty("--primary", hexToHSL(theme.primary))
-    document.documentElement.style.setProperty("--secondary", hexToHSL(theme.secondary))
-    document.documentElement.style.setProperty("--accent", hexToHSL(theme.accent))
-    document.documentElement.style.setProperty("--muted", hexToHSL(theme.muted))
-    document.documentElement.style.setProperty("--muted-foreground", hexToHSL(theme.mutedForeground))
-    document.documentElement.style.setProperty("--border", hexToHSL(theme.border))
-
-    // Apply dark mode if needed
-    if (theme.isDark) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }
-
   // Modify the applyTheme function to also update the UI
   const applyTheme = (theme: ThemeColor) => {
     if (!iframeRef.current?.contentWindow?.document) return
@@ -1101,41 +885,94 @@ export default function PortfolioCustomizer() {
     updatePortfolioHTML()
   }
 
-  // Add useEffect to initialize the UI theme when the component mounts
-  useEffect(() => {
-    // Apply the default theme to the UI
-    applyThemeToUI(themeColors[0])
-  }, [])
 
-  // Save the updated HTML to localStorage
-  const savePortfolio = () => {
-    setIsSaving(true)
-
-    try {
-      localStorage.setItem("portfolioHTML", portfolioHTML)
-      setSaveSuccess(true)
-      toast.success("Progress Saved Successfully!!")
-      setTimeout(() => setSaveSuccess(false), 3000)
-    } catch (error) {
-      console.error("Error saving portfolio:", error)
-    } finally {
-      setIsSaving(false)
+  // Add this new function for handling publishing
+  const handlePublish = () => {
+    if (!publishSubdomain.trim()) {
+      toast.error("Please enter a valid subdomain name")
+      return
     }
+
+    setIsPublishing(true)
+
+    // Simulate publishing process
+    setTimeout(() => {
+      try {
+
+        // For now, we'll just open the HTML in a new tab
+        const blob = new Blob([portfolioHTML], { type: "text/html" })
+        const url = URL.createObjectURL(blob)
+        window.open(url, "_blank")
+
+        setPublishSuccess(true)
+        toast.success(`Successfully published to ${publishSubdomain}.portfolio.dev!`)
+
+        // Close the dialog after successful publish
+        setTimeout(() => {
+          setShowSaveDialog(false)
+          setPublishSuccess(false)
+          setPublishSubdomain("")
+        }, 5000)
+      } catch (error) {
+        console.error("Error publishing portfolio:", error)
+        toast.error("Failed to publish. Please try again.")
+      } finally {
+        setIsPublishing(false)
+      }
+    }, 1500) // Simulate network delay
   }
 
-  // Undo changes
   const undo = () => {
     if (historyIndex > 0) {
-      setHistoryIndex((prev) => prev - 1)
+      setHistoryIndex(historyIndex - 1)
       setPortfolioHTML(history[historyIndex - 1])
     }
   }
 
-  // Redo changes
   const redo = () => {
     if (historyIndex < history.length - 1) {
-      setHistoryIndex((prev) => prev + 1)
+      setHistoryIndex(historyIndex + 1)
       setPortfolioHTML(history[historyIndex + 1])
+    }
+  }
+
+  const handlePublishToCloud = () => {
+    setShowPublishDialog(true)
+  }
+
+  const processPublish = async () => {
+    if (!publishSubdomain.trim()) {
+      toast.error("Please enter a valid subdomain name")
+      return
+    }
+
+    setIsPublishing(true)
+
+    try {
+      // Simulate publishing process
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+
+      // In a real app, this would make an API call to register the subdomain
+      // and deploy the HTML content to that subdomain
+
+      // For now, we'll just set the published URL
+      const route = `/portfolios/${publishSubdomain}`
+      setPublishedUrl(route)
+
+      setPublishSuccess(true)
+      toast.success(`Successfully published to ${publishSubdomain}.portfolio.dev!`)
+
+      // Close the dialog after successful publish
+      setTimeout(() => {
+        setShowPublishDialog(false)
+        setPublishSuccess(false)
+        setPublishSubdomain("")
+      }, 5000)
+    } catch (error) {
+      console.error("Error publishing portfolio:", error)
+      toast.error("Failed to publish. Please try again.")
+    } finally {
+      setIsPublishing(false)
     }
   }
 
@@ -1162,7 +999,7 @@ export default function PortfolioCustomizer() {
                     <span className="hidden sm:inline">Theme</span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-96 backdrop-blur-3xl">
+                <PopoverContent className="w-96 text-white backdrop-blur-3xl">
                   <div className="space-y-4 ">
                     <h3 className="font-medium">Select Theme</h3>
                     <p className="text-sm text-muted-foreground">Choose a color theme for your portfolio</p>
@@ -1249,13 +1086,22 @@ export default function PortfolioCustomizer() {
               {isSaving ? "Saving..." : "Save Changes"}
               <Save className="ml-2 h-4 w-4" />
             </Button>
+
+            <Button
+              onClick={handlePublishToCloud}
+              disabled={isSaving}
+              className="bg-gradient-to-r from-violet-800 to-indigo-400 text-white"
+            >
+              Publish on Cloud
+              <CloudLightningIcon className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         </header>
 
         {/* Main content */}
         <div className="flex flex-1 overflow-hidden">
           {/* Sidebar */}
-          <Sidebar>
+          <Sidebar className="w-80">
             {/* <SidebarHeader className="border-b p-4">
               {saveSuccess && (
                 <Alert className="mt-2 bg-green-50 text-green-800 border-green-200">
@@ -1692,7 +1538,7 @@ export default function PortfolioCustomizer() {
           </Sidebar>
 
           {/* Main content area */}
-          <div className="flex-1 overflow-auto p-4">
+          <div className="flex-1 overflow-auto ml-16 p-4">
             <div className="rounded-lg border bg-card shadow-sm">
               <div className="h-full w-full">
                 <iframe
@@ -1706,7 +1552,201 @@ export default function PortfolioCustomizer() {
           </div>
         </div>
       </div>
+
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="sm:max-w-md backdrop-blur-3xl text-white">
+          <DialogHeader>
+            <DialogTitle>Your changes have been saved!</DialogTitle>
+            <p>Would you like to continue editing or publish your portfolio website?</p>
+          </DialogHeader>
+
+          {!publishSuccess ? (
+            <>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="subdomain">Choose your subdomain</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="subdomain"
+                      placeholder="your-name"
+                      value={publishSubdomain}
+                      onChange={(e) => setPublishSubdomain(e.target.value)}
+                      className="flex-1"
+                    />
+                    <span className="text-sm text-muted-foreground">.portfolio.dev</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    This will be the URL where your portfolio is published.
+                  </p>
+                </div>
+              </div>
+
+              <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
+                <Button type="button" variant="outline" onClick={() => setShowSaveDialog(false)}>
+                  Continue Editing
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handlePublish}
+                  disabled={isPublishing || !publishSubdomain.trim()}
+                  className="bg-gradient-to-r from-violet-500 to-indigo-600 text-white"
+                >
+                  {isPublishing ? (
+                    <>
+                      <div className="mr-2 h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                      Publishing...
+                    </>
+                  ) : (
+                    <>Publish Now</>
+                  )}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <div className="py-6 flex flex-col items-center justify-center">
+              <div className="mb-4 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                <Check className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-medium text-center">Successfully Published!</h3>
+              <p className="mt-2 text-center text-sm text-muted-foreground">
+                Your portfolio is now live at{" "}
+                <a
+                  href={`https://${publishSubdomain}.portfolio.dev`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline"
+                >
+                  {publishSubdomain}.portfolio.dev
+                </a>
+              </p>
+              <Button
+                className="mt-4"
+                variant="outline"
+                onClick={() => {
+                  setShowSaveDialog(false)
+                  setPublishSuccess(false)
+                }}
+              >
+                Close
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Publish Dialog */}
+      <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
+        <DialogContent className="sm:max-w-md backdrop-blur-3xl text-white">
+          <DialogHeader>
+            <DialogTitle>Publish Your Portfolio to Cloud</DialogTitle>
+            <p>Your portfolio will be assigned a unique URL that you can share with others.</p>
+          </DialogHeader>
+
+          {!publishSuccess ? (
+            <>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="subdomain">Choose your subdomain</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="subdomain"
+                      placeholder="your-name"
+                      value={publishSubdomain}
+                      onChange={(e) => setPublishSubdomain(e.target.value)}
+                      className="flex-1"
+                    />
+                    <span className="text-sm text-muted-foreground">.portfolio.dev</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    This will be the URL where your portfolio is published.
+                  </p>
+                </div>
+              </div>
+
+              <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
+                <Button type="button" variant="outline" onClick={() => setShowPublishDialog(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={processPublish}
+                  disabled={isPublishing || !publishSubdomain.trim()}
+                  className="bg-gradient-to-r from-violet-500 to-indigo-600 text-white"
+                >
+                  {isPublishing ? (
+                    <>
+                      <div className="mr-2 h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                      Publishing...
+                    </>
+                  ) : (
+                    <>Publish Now</>
+                  )}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <div className="py-6 flex flex-col items-center justify-center">
+              <div className="mb-4 h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                <Check className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="text-lg font-medium text-center">Successfully Published!</h3>
+              <p className="mt-2 text-center text-sm text-muted-foreground">
+                Your portfolio is now live at{" "}
+                <a
+                  href={`https://${publishSubdomain}.portfolio.dev`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline"
+                >
+                  {publishSubdomain}.portfolio.dev
+                </a>
+              </p>
+              <div className="mt-4 p-3 bg-muted rounded-md w-full">
+                <p className="text-sm font-medium mb-1">Route Information:</p>
+                <code className="text-xs bg-background p-2 rounded block">{publishedUrl}</code>
+                <p className="text-xs mt-2 text-muted-foreground">
+                  This route will render your portfolio HTML content.
+                </p>
+              </div>
+              <Button
+                className="mt-4"
+                variant="outline"
+                onClick={() => {
+                  // In a real app, we would redirect to the published page
+                  // window.open(`/portfolios/${publishSubdomain}`, '_blank');
+                  setShowPublishDialog(false)
+                  setPublishSuccess(false)
+                }}
+              >
+                Close
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   )
+
+  async function savePortfolio() {
+    setIsSaving(true)
+    setSaveSuccess(false)
+
+    try {
+      // Save to local storage
+      localStorage.setItem("portfolioHTML", portfolioHTML)
+
+      // Simulate saving to a database
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      setSaveSuccess(true)
+      toast.success("Changes saved successfully!")
+      setShowSaveDialog(true)
+    } catch (error) {
+      console.error("Error saving portfolio:", error)
+      toast.error("Failed to save changes. Please try again.")
+    } finally {
+      setIsSaving(false)
+    }
+  }
 }
 

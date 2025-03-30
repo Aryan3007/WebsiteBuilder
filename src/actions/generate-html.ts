@@ -1,7 +1,7 @@
 
-import prisma from '@/lib/prisma';
+// import prisma from '@/lib/prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { getServerSession } from 'next-auth';
+// import { getServerSession } from 'next-auth';
 
 if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is not defined in the environment variables.");
@@ -85,10 +85,10 @@ export async function generateHTML(resumeText: string) {
               [Brief compelling introduction, 1-2 sentences]
             </p>
             <div class="flex flex-wrap gap-4 pt-4">
-              <a href="#contact" class="px-6 py-3 bg-black hover:bg-gray-800 text-white rounded-lg transition transform hover:scale-105 shadow-lg">
+              <a href="#contact" class="px-6 py-3 bg-black text-white rounded-lg transition transform hover:scale-95 shadow-lg">
                 Get in Touch
               </a>
-              <a href="#projects" class="px-6 py-3 border border-black text-black dark:border-white dark:text-white hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition transform hover:scale-105">
+              <a href="#projects" class="px-6 py-3 border border-black text-black dark:border-white dark:text-white  rounded-lg transition transform hover:scale-95">
                 View Projects
               </a>
             </div>
