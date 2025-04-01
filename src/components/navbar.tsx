@@ -8,6 +8,10 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Image from "next/image"
+import {  Session } from "next-auth"
+import { signOut } from "next-auth/react"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 const navLinks = [
   { href: "#features", label: "Features" },
   { href: "#how-it-works", label: "How It Works" },
@@ -16,8 +20,11 @@ const navLinks = [
   { href: "/communities", label: "Community" },
 ]
 
-export function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+export function Navbar({ session }: { session: Session | null }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const router = useRouter();
+
 
   return (
     <motion.header
@@ -60,14 +67,22 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex sm:items-center sm:gap-4">
+          {session === null ? <div className="hidden sm:flex sm:items-center sm:gap-4">
             <Link href="/signin">
               <Button variant="ghost">Log in</Button>
             </Link>
             <Link href="/signup">
               <Button className="bg-gradient-to-tr from-violet-500 to-indigo-600 text-white">Sign up free</Button>
             </Link>
-          </div>
+          </div> : <div className="hidden sm:inline-flex">
+            <Button variant='default' className="bg-gradient-to-r from-violet-500 to-indigo-600 text-white" onClick={async()=>{
+              await signOut();
+              toast.success("Logged out successfully");
+              router.push('/');
+            }}>
+              Logout
+            </Button>
+            </div>}
 
           <div className="flex sm:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

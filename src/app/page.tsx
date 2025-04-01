@@ -6,10 +6,12 @@ import { Navbar } from "@/components/navbar";
 // import { authOptions } from "@/lib/auth";
 // import { getServerSession } from "next-auth";
 import { Footer } from "@/components/footer";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 // import { redirect } from "next/navigation";
 
 export default async function Home() {
-  // const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions)
 
   // if(!session){
   //   redirect('/signin')
@@ -17,7 +19,7 @@ export default async function Home() {
 
   return (
     <div className="relative min-h-screen">
-      <Navbar />
+      <Navbar session={session}/>
       <main>
         <HeroSection />
         <FeaturesSection />
