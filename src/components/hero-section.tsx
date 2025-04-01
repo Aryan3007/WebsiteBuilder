@@ -11,6 +11,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { Session } from "next-auth"
 
 // Animation variants for staggered animation
 const containerVariants = {
@@ -44,7 +45,7 @@ const features = [
   "SEO optimized",
 ]
 
-export function HeroSection() {
+export function HeroSection({ session }: { session: Session | null }) {
   const [isHovering, setIsHovering] = useState(false)
 
   return (
@@ -123,7 +124,29 @@ export function HeroSection() {
           >
             <HoverCard>
               <HoverCardTrigger asChild>
-                <Link href="/generate-portfolio">
+                {session ? <Link href="/generate-portfolio">
+                  <Button
+                    size="lg"
+                    className="relative overflow-hidden bg-gradient-to-r from-violet-500 to-indigo-600 text-white transition-transform hover:scale-105"
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
+                  >
+                    <motion.span
+                      className="relative z-10 flex items-center gap-2"
+                      animate={isHovering ? { x: 5 } : { x: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
+                      Generate Portfolio
+                      <ArrowRight className="h-4 w-4" />
+                    </motion.span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-500"
+                      initial={{ x: "100%" }}
+                      animate={isHovering ? { x: 0 } : { x: "100%" }}
+                      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                    />
+                  </Button>
+                </Link> : <Link href="/signin">
                   <Button
                     size="lg"
                     className="relative overflow-hidden bg-gradient-to-r from-violet-500 to-indigo-600 text-white transition-transform hover:scale-105"
@@ -145,7 +168,7 @@ export function HeroSection() {
                       transition={{ type: "spring", stiffness: 100, damping: 20 }}
                     />
                   </Button>
-                </Link>
+                </Link>}
               </HoverCardTrigger>
               <HoverCardContent className="w-80  backdrop-blur-3xl">
                 <div className="flex justify-between space-y-1">

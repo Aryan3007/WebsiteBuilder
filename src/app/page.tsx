@@ -21,7 +21,7 @@ export default async function Home() {
     <div className="relative min-h-screen">
       <Navbar session={session}/>
       <main>
-        <HeroSection />
+        <HeroSection session={session} />
         <FeaturesSection />
         <HowItWorks />
         <CtaSection />
